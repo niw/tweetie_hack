@@ -5,29 +5,48 @@
 
 @implementation TwitterAccount(TweetieHack)
 - (void)swizzled_somethingDidUpdate:(NSNotification*)something {
-	NSLog(@"somethingDidUpdate:%@", something);
 	if([[something name] isEqualToString:@"TwitterStreamDidUpdateNotification"]) {
 		TwitterAccountStream* accountStream = [something object];
+		NSString *notificationName = [[accountStream className] isEqualToString:@"TwitterRepliesStream"] ? @"Replies" : @"Timeline";
 		NSArray *statuses = [accountStream statuses];
 		NSUInteger newestIndex = [statuses indexOfObject:[accountStream newestStatus]];
-		for(NSUInteger i=newestIndex; i<MAX_NO_OF_NOTIFIED_STATUS && i<[statuses count]; i++) {
+		NSUInteger nNotified = 0, nUnSeen = 0;
+		NSMutableArray *unSeenTweetsUserNames = [NSMutableArray arrayWithCapacity:10];
+		for(NSUInteger i = newestIndex; i < [statuses count]; i++) {
 			TwitterStatus *status = [statuses objectAtIndex:i];
 			if([status statusID] && ![status wasSeen]) {
-				TwitterUser *fromUser = [status fromUser];
-				NSData *iconData = nil;
-				NSURL *url = [fromUser profileImageURL];
-				if(url) {
-					iconData = [[NSData alloc] initWithContentsOfURL:url];
+				if(nNotified < MAX_NO_OF_NOTIFIED_STATUS) {
+					TwitterUser *fromUser = [status fromUser];
+					NSData *iconData = nil;
+					NSURL *url = [fromUser profileImageURL];
+					if(url) {
+						iconData = [[NSData alloc] initWithContentsOfURL:url];
+					}
+					[GrowlApplicationBridge notifyWithTitle:[fromUser username]
+												description:[status text]
+										   notificationName:notificationName
+												   iconData:iconData
+												   priority:0
+												   isSticky:NO
+											   clickContext:nil];
+					nNotified++;
+				} else {
+					if(nUnSeen < 10) {
+						[unSeenTweetsUserNames addObject:[[status fromUser] username]];
+					}
+					nUnSeen++;
 				}
-				[GrowlApplicationBridge notifyWithTitle:[fromUser username]
-											description:[status text]
-									   notificationName:[[accountStream className] isEqualToString:@"TwitterRepliesStream"] ? @"Replies" : @"Timeline"
-											   iconData:iconData
-											   priority:0
-											   isSticky:NO
-										   clickContext:nil];
 				[status setWasSeen:YES];
 			}
+		}
+		if(nUnSeen) {
+			[GrowlApplicationBridge notifyWithTitle:[NSString stringWithFormat:@"%d new tweets", nUnSeen]
+										description:[unSeenTweetsUserNames componentsJoinedByString:@", "]
+								   notificationName:notificationName
+										   iconData:nil
+										   priority:0
+										   isSticky:NO
+									   clickContext:nil];
 		}
 	}
 
@@ -37,10 +56,9 @@
 
 @implementation NSApplication(TweetieHack)
 - (NSDictionary *)registrationDictionaryForGrowl {
-	NSLog(@"registrationDictionaryForGrowl");
 	return [NSDictionary dictionaryWithObjectsAndKeys:
-			[NSArray arrayWithObjects:@"Timeline", @"Replies", nil], GROWL_NOTIFICATIONS_ALL,
-			[NSArray arrayWithObjects:@"Timeline", @"Replies", nil], GROWL_NOTIFICATIONS_DEFAULT, nil];
+		[NSArray arrayWithObjects:@"Timeline", @"Replies", nil], GROWL_NOTIFICATIONS_ALL,
+		[NSArray arrayWithObjects:@"Timeline", @"Replies", nil], GROWL_NOTIFICATIONS_DEFAULT, nil];
 }
 @end
 
