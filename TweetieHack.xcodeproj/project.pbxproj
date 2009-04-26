@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		547E383C0FA2C46200FF1350 /* MethodSwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = 547E383B0FA2C46200FF1350 /* MethodSwizzle.m */; };
+		54B8E4300FA3A28100ABDF96 /* Growl.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 54B8E42F0FA3A28100ABDF96 /* Growl.framework */; };
 		54E9FB220FA23B4E00DB93BC /* TweetieHack.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E9FB210FA23B4E00DB93BC /* TweetieHack.m */; };
 		8D5B49B0048680CD000E48DA /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C167DFE841241C02AAC07 /* InfoPlist.strings */; };
 		8D5B49B4048680CD000E48DA /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
@@ -21,6 +22,7 @@
 		32DBCF630370AF2F00C91783 /* TweetieHack_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TweetieHack_Prefix.pch; sourceTree = "<group>"; };
 		547E383A0FA2C46200FF1350 /* MethodSwizzle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MethodSwizzle.h; sourceTree = "<group>"; };
 		547E383B0FA2C46200FF1350 /* MethodSwizzle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MethodSwizzle.m; sourceTree = "<group>"; };
+		54B8E42F0FA3A28100ABDF96 /* Growl.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Growl.framework; path = /Applications/Tweetie.app/Contents/Frameworks/Growl.framework; sourceTree = "<absolute>"; };
 		54E9FB200FA23B4E00DB93BC /* TweetieHack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TweetieHack.h; sourceTree = "<group>"; };
 		54E9FB210FA23B4E00DB93BC /* TweetieHack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TweetieHack.m; sourceTree = "<group>"; };
 		8D5B49B6048680CD000E48DA /* TweetieHack.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TweetieHack.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -34,6 +36,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D5B49B4048680CD000E48DA /* Cocoa.framework in Frameworks */,
+				54B8E4300FA3A28100ABDF96 /* Growl.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -84,6 +87,7 @@
 		1058C7ACFEA557BF11CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				54B8E42F0FA3A28100ABDF96 /* Growl.framework */,
 				1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */,
 			);
 			name = "Linked Frameworks";
@@ -193,6 +197,10 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SYSTEM_APPS_DIR)/Tweetie.app/Contents/Frameworks\"",
+				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
@@ -211,6 +219,10 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SYSTEM_APPS_DIR)/Tweetie.app/Contents/Frameworks\"",
+				);
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = TweetieHack_Prefix.pch;
