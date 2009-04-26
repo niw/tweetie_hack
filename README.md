@@ -3,8 +3,13 @@ Tweetie Hack
 
 This is a plugin for [Tweetie for Mac](http://www.atebits.com/tweetie-mac/) to extend this to add [Growl](http://growl.info/) notification etc.
 
-Usage
------
+Donwload and Install
+--------------------
+
+Visit [an artcile of this plugin](http://niw.at/articles/2009/04/26/temporary-growl-plugin-for-tweetie-for-mac/), you can get the binary package and the instruction.
+
+Using this source code
+----------------------
 
 Build it with Xcode.app then copy build/Debug/TweetieHack.bundle into ~/Library/Application Support/SIMBL/Plugins.
 
