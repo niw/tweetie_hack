@@ -7,4 +7,5 @@ Usage
 -----
 
 Build it with Xcode.app then copy build/Debug/TweetieHack.bundle into ~/Library/Application Support/SIMBL/Plugins.
-You should install [SIMBL](http://www.culater.net/software/SIMBL/SIMBL.php) prior to use this plugin.
+
+You should install [SIMBL](http://www.culater.net/software/SIMBL/SIMBL.php) and of course, Tweetie.app inside /Application prior to build and use this plugin.
