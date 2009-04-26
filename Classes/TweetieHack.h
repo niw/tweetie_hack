@@ -7,26 +7,28 @@
 - (NSURL *)profileImageURL;
 @end
 
+@interface TwitterDirectMessage : NSObject {
+}
+- (TwitterUser *)sender;
+- (NSString *)text;
+@end
+
 @interface TwitterStatus : NSObject {
 }
 - (TwitterUser *)fromUser;
 - (NSString *)text;
-- (NSString *)statusID;
-- (BOOL)wasSeen;
-- (void)setWasSeen:(BOOL)seen;
 @end
 
-@interface TwitterAccountStream : NSObject {
+@interface TwitterConcreteStatusesStream : NSObject {
 }
-- (NSArray*)statuses;
-- (TwitterStatus *)newestStatus;
 @end
 
-@interface TwitterAccount : NSObject {
+@interface TwitterDirectMessagesStream : NSObject {
 }
 @end
 
 @interface TweetieHack : NSObject {
 }
++ (void)growl:(NSString *)message From:(TwitterUser *)user notificationName:(NSString *)notificationName;
 + (void)load;
 @end

@@ -2,67 +2,102 @@
 #import "MethodSwizzle.h"
 
 #define MAX_NO_OF_NOTIFIED_STATUS 5
+#define MAX_NO_OF_UNNOTIFIED_NAMES 10
 
-@implementation TwitterAccount(TweetieHack)
-- (void)swizzled_somethingDidUpdate:(NSNotification*)something {
-	if([[something name] isEqualToString:@"TwitterStreamDidUpdateNotification"]) {
-		TwitterAccountStream* accountStream = [something object];
-		NSString *notificationName = [[accountStream className] isEqualToString:@"TwitterRepliesStream"] ? @"Replies" : @"Timeline";
-		NSArray *statuses = [accountStream statuses];
-		NSUInteger newestIndex = [statuses indexOfObject:[accountStream newestStatus]];
-		NSUInteger nNotified = 0, nUnSeen = 0;
-		NSMutableArray *unSeenTweetsUserNames = [NSMutableArray arrayWithCapacity:10];
-		for(NSUInteger i = newestIndex; i < [statuses count]; i++) {
-			TwitterStatus *status = [statuses objectAtIndex:i];
-			if([status statusID] && ![status wasSeen]) {
-				if(nNotified < MAX_NO_OF_NOTIFIED_STATUS) {
-					TwitterUser *fromUser = [status fromUser];
-					NSData *iconData = nil;
-					NSURL *url = [fromUser profileImageURL];
-					if(url) {
-						iconData = [[NSData alloc] initWithContentsOfURL:url];
-					}
-					[GrowlApplicationBridge notifyWithTitle:[fromUser username]
-												description:[status text]
-										   notificationName:notificationName
-												   iconData:iconData
-												   priority:0
-												   isSticky:NO
-											   clickContext:nil];
-					nNotified++;
-				} else {
-					if(nUnSeen < 10) {
-						[unSeenTweetsUserNames addObject:[[status fromUser] username]];
-					}
-					nUnSeen++;
-				}
-				[status setWasSeen:YES];
+@implementation TwitterConcreteStatusesStream(TweetieHack)
+- (void)swizzled_addStatuses:(NSArray *)statuses {
+	NSString *notificationName = [[self className] isEqualToString:@"TwitterRepliesStream"] ? @"Replies" : @"Timeline";
+	NSUInteger nNotified = 0, nUnNotified = 0;
+	NSMutableArray *unNotifiedTweetsUserNames = [NSMutableArray arrayWithCapacity:MAX_NO_OF_UNNOTIFIED_NAMES];
+	for(NSUInteger i = 0; i < [statuses count]; i++) {
+		TwitterStatus *status = [statuses objectAtIndex:i];
+		if(nNotified < MAX_NO_OF_NOTIFIED_STATUS) {
+			[TweetieHack growl:[status text] From:[status fromUser] notificationName:notificationName];
+			nNotified++;
+		} else {
+			if(nUnNotified < MAX_NO_OF_UNNOTIFIED_NAMES) {
+				[unNotifiedTweetsUserNames addObject:[[status fromUser] username]];
 			}
-		}
-		if(nUnSeen) {
-			[GrowlApplicationBridge notifyWithTitle:[NSString stringWithFormat:@"%d new tweets", nUnSeen]
-										description:[unSeenTweetsUserNames componentsJoinedByString:@", "]
-								   notificationName:notificationName
-										   iconData:nil
-										   priority:0
-										   isSticky:NO
-									   clickContext:nil];
+			nUnNotified++;
 		}
 	}
+	if(nUnNotified) {
+		NSString *format = @"%d new tweets";
+		if(nUnNotified == 1) {
+			format = @"%d new tweet";
+		}
+		[GrowlApplicationBridge notifyWithTitle:[NSString stringWithFormat:format, nUnNotified]
+									description:[unNotifiedTweetsUserNames componentsJoinedByString:@", "]
+							   notificationName:notificationName
+									   iconData:nil
+									   priority:0
+									   isSticky:NO
+								   clickContext:nil];
+	}
 
-	[self swizzled_somethingDidUpdate:something];
+	return [self swizzled_addStatuses:statuses];
+}
+@end
+
+@implementation TwitterDirectMessagesStream(TweetieHack)
+- (void)swizzled_addMessages:(NSArray *)messages {
+	NSString *notificationName = @"Direct Message";
+	NSUInteger nNotified = 0, nUnNotified = 0;
+	NSMutableArray *unNotifiedTweetsUserNames = [NSMutableArray arrayWithCapacity:MAX_NO_OF_UNNOTIFIED_NAMES];
+	for(NSUInteger i = 0; i < [messages count]; i++) {
+		TwitterDirectMessage *message = [messages objectAtIndex:i];
+		if(nNotified < MAX_NO_OF_NOTIFIED_STATUS) {
+			[TweetieHack growl:[message text] From:[message sender] notificationName:notificationName];
+			nNotified++;
+		} else {
+			if(nUnNotified < MAX_NO_OF_UNNOTIFIED_NAMES) {
+				[unNotifiedTweetsUserNames addObject:[[message sender] username]];
+			}
+			nUnNotified++;
+		}
+	}
+	if(nUnNotified) {
+		NSString *format = @"%d new direct messages";
+		if(nUnNotified == 1) {
+			format = @"%d new direct message";
+		}
+		[GrowlApplicationBridge notifyWithTitle:[NSString stringWithFormat:format, nUnNotified]
+									description:[unNotifiedTweetsUserNames componentsJoinedByString:@", "]
+							   notificationName:notificationName
+									   iconData:nil
+									   priority:0
+									   isSticky:NO
+								   clickContext:nil];
+	}
+
+	return [self swizzled_addMessages:messages];
 }
 @end
 
 @implementation NSApplication(TweetieHack)
 - (NSDictionary *)registrationDictionaryForGrowl {
 	return [NSDictionary dictionaryWithObjectsAndKeys:
-		[NSArray arrayWithObjects:@"Timeline", @"Replies", nil], GROWL_NOTIFICATIONS_ALL,
-		[NSArray arrayWithObjects:@"Timeline", @"Replies", nil], GROWL_NOTIFICATIONS_DEFAULT, nil];
+		[NSArray arrayWithObjects:@"Timeline", @"Replies", @"Direct Message", nil], GROWL_NOTIFICATIONS_ALL,
+		[NSArray arrayWithObjects:@"Timeline", @"Replies", @"Direct Message", nil], GROWL_NOTIFICATIONS_DEFAULT, nil];
 }
 @end
 
 @implementation TweetieHack
++ (void)growl:(NSString *)message From:(TwitterUser *)user notificationName:(NSString *)notificationName {
+	NSData *iconData = nil;
+	NSURL *url = [user profileImageURL];
+	if(url) {
+		iconData = [NSData dataWithContentsOfURL:url];
+	}
+	[GrowlApplicationBridge notifyWithTitle:[user username]
+								description:message
+						   notificationName:notificationName
+								   iconData:iconData
+								   priority:0
+								   isSticky:NO
+							   clickContext:nil];
+}
+
 + (void)load {
 	NSApplication *app = [NSApplication sharedApplication];
 	NSBundle *appBundle = [NSBundle bundleForClass:[app class]];
@@ -74,7 +109,9 @@
 		NSLog(@"Could not load Growl.framework");
 	}
 
-	if(MethodSwizzle(NSClassFromString(@"TwitterAccount"), @selector(somethingDidUpdate:), @selector(swizzled_somethingDidUpdate:))) {
+	if(MethodSwizzle(NSClassFromString(@"TwitterTimelineStream"), @selector(addStatuses:), @selector(swizzled_addStatuses:)) &&
+	   MethodSwizzle(NSClassFromString(@"TwitterRepliesStream"), @selector(addStatuses:), @selector(swizzled_addStatuses:)) &&
+	   MethodSwizzle(NSClassFromString(@"TwitterReceivedDirectMessagesStream"), @selector(addMessages:), @selector(swizzled_addMessages:))) {
 		NSLog(@"TweetieHack installed");
 	}
 }
