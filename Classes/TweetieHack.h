@@ -7,6 +7,7 @@
 - (NSURL *)profileImageURL;
 @end
 
+/*
 @interface TwitterDirectMessage : NSObject {
 }
 - (TwitterUser *)sender;
@@ -18,6 +19,7 @@
 - (TwitterUser *)fromUser;
 - (NSString *)text;
 @end
+*/
 
 @interface TwitterConcreteStatusesStream : NSObject {
 }
@@ -30,5 +32,6 @@
 @interface TweetieHack : NSObject {
 }
 + (void)growl:(NSString *)message From:(TwitterUser *)user notificationName:(NSString *)notificationName;
++ (void)growl:(NSArray *)tweets messageSelector:(SEL)msgsel userSelector:(SEL)usersel moreFormat:(NSString *)moreFormat notificationName:(NSString *)notificationName;
 + (void)load;
 @end

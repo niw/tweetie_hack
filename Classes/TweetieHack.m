@@ -6,34 +6,11 @@
 
 @implementation TwitterConcreteStatusesStream(TweetieHack)
 - (void)swizzled_addStatuses:(NSArray *)statuses {
-	NSString *notificationName = [[self className] isEqualToString:@"TwitterRepliesStream"] ? @"Replies" : @"Timeline";
-	NSUInteger nNotified = 0, nUnNotified = 0;
-	NSMutableArray *unNotifiedTweetsUserNames = [NSMutableArray arrayWithCapacity:MAX_NO_OF_UNNOTIFIED_NAMES];
-	for(NSUInteger i = 0; i < [statuses count]; i++) {
-		TwitterStatus *status = [statuses objectAtIndex:i];
-		if(nNotified < MAX_NO_OF_NOTIFIED_STATUS) {
-			[TweetieHack growl:[status text] From:[status fromUser] notificationName:notificationName];
-			nNotified++;
-		} else {
-			if(nUnNotified < MAX_NO_OF_UNNOTIFIED_NAMES) {
-				[unNotifiedTweetsUserNames addObject:[[status fromUser] username]];
-			}
-			nUnNotified++;
-		}
-	}
-	if(nUnNotified) {
-		NSString *format = @"%d new tweets";
-		if(nUnNotified == 1) {
-			format = @"%d new tweet";
-		}
-		[GrowlApplicationBridge notifyWithTitle:[NSString stringWithFormat:format, nUnNotified]
-									description:[unNotifiedTweetsUserNames componentsJoinedByString:@", "]
-							   notificationName:notificationName
-									   iconData:nil
-									   priority:0
-									   isSticky:NO
-								   clickContext:nil];
-	}
+	[TweetieHack growl:statuses
+	   messageSelector:@selector(text)
+		  userSelector:@selector(fromUser)
+			moreFormat:@"%d more tweets"
+	  notificationName:[[self className] isEqualToString:@"TwitterRepliesStream"] ? @"Replies" : @"Timeline"];
 
 	return [self swizzled_addStatuses:statuses];
 }
@@ -41,34 +18,11 @@
 
 @implementation TwitterDirectMessagesStream(TweetieHack)
 - (void)swizzled_addMessages:(NSArray *)messages {
-	NSString *notificationName = @"Direct Message";
-	NSUInteger nNotified = 0, nUnNotified = 0;
-	NSMutableArray *unNotifiedTweetsUserNames = [NSMutableArray arrayWithCapacity:MAX_NO_OF_UNNOTIFIED_NAMES];
-	for(NSUInteger i = 0; i < [messages count]; i++) {
-		TwitterDirectMessage *message = [messages objectAtIndex:i];
-		if(nNotified < MAX_NO_OF_NOTIFIED_STATUS) {
-			[TweetieHack growl:[message text] From:[message sender] notificationName:notificationName];
-			nNotified++;
-		} else {
-			if(nUnNotified < MAX_NO_OF_UNNOTIFIED_NAMES) {
-				[unNotifiedTweetsUserNames addObject:[[message sender] username]];
-			}
-			nUnNotified++;
-		}
-	}
-	if(nUnNotified) {
-		NSString *format = @"%d new direct messages";
-		if(nUnNotified == 1) {
-			format = @"%d new direct message";
-		}
-		[GrowlApplicationBridge notifyWithTitle:[NSString stringWithFormat:format, nUnNotified]
-									description:[unNotifiedTweetsUserNames componentsJoinedByString:@", "]
-							   notificationName:notificationName
-									   iconData:nil
-									   priority:0
-									   isSticky:NO
-								   clickContext:nil];
-	}
+	[TweetieHack growl:messages
+	   messageSelector:@selector(text)
+		  userSelector:@selector(sender)
+			moreFormat:@"%d more direct messages"
+	  notificationName:@"Direct Message"];
 
 	return [self swizzled_addMessages:messages];
 }
@@ -96,6 +50,41 @@
 								   priority:0
 								   isSticky:NO
 							   clickContext:nil];
+}
+
++ (void)growl:(NSArray *)tweets messageSelector:(SEL)msgsel userSelector:(SEL)usersel moreFormat:(NSString *)moreFormat notificationName:(NSString *)notificationName {
+	NSUInteger nNotified = 0, nUnNotified = 0;
+	id lastTweet = nil;
+
+	NSMutableArray *unNotifiedTweetsUserNames = [NSMutableArray arrayWithCapacity:MAX_NO_OF_UNNOTIFIED_NAMES];
+	for(NSUInteger i = 0; i < [tweets count]; i++) {
+		id tweet = [tweets objectAtIndex:i];
+		TwitterUser *user = objc_msgSend(tweet, usersel);
+
+		if(nNotified < MAX_NO_OF_NOTIFIED_STATUS) {
+			[TweetieHack growl:objc_msgSend(tweet, msgsel) From:user notificationName:notificationName];
+			nNotified++;
+		} else {
+			if(nUnNotified < MAX_NO_OF_UNNOTIFIED_NAMES) {
+				[unNotifiedTweetsUserNames addObject:[user username]];
+			}
+			lastTweet = tweet;
+			nUnNotified++;
+		}
+	}
+	if(nUnNotified) {
+		if(nUnNotified < 2 && lastTweet) {
+			[TweetieHack growl:objc_msgSend(lastTweet, msgsel) From:objc_msgSend(lastTweet, usersel) notificationName:notificationName];
+		} else {
+			[GrowlApplicationBridge notifyWithTitle:[NSString stringWithFormat:moreFormat, nUnNotified]
+										description:[unNotifiedTweetsUserNames componentsJoinedByString:@", "]
+								   notificationName:notificationName
+										   iconData:nil
+										   priority:0
+										   isSticky:NO
+									   clickContext:nil];
+		}
+	}
 }
 
 + (void)load {
