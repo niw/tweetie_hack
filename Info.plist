@@ -28,7 +28,7 @@
 			<key>BundleIdentifier</key>
 			<string>com.atebits.tweetie-mac</string>
 			<key>MaxBundleVersion</key>
-			<string>1.1</string>
+			<string>1.1.1</string>
 			<key>MinBundleVersion</key>
 			<string>1.1</string>
 		</dict>
