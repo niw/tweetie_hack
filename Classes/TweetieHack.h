@@ -7,27 +7,11 @@
 - (NSURL *)profileImageURL;
 @end
 
-/*
-@interface TwitterDirectMessage : NSObject {
-}
-- (TwitterUser *)sender;
-- (NSString *)text;
-@end
-
-@interface TwitterStatus : NSObject {
-}
-- (TwitterUser *)fromUser;
-- (NSString *)text;
-@end
-*/
-
-@interface TwitterConcreteStatusesStream : NSObject {
+@interface TweetieAppDelegate : NSObject {
 }
 @end
 
-@interface TwitterDirectMessagesStream : NSObject {
-}
-@end
+#pragma mark -
 
 @interface TweetieHack : NSObject {
 }

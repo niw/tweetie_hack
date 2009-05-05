@@ -4,37 +4,46 @@
 #define MAX_NO_OF_NOTIFIED_STATUS 5
 #define MAX_NO_OF_UNNOTIFIED_NAMES 10
 
-@implementation TwitterConcreteStatusesStream(TweetieHack)
-- (void)swizzled_addStatuses:(NSArray *)statuses {
-	[TweetieHack growl:statuses
+#pragma mark -
+
+@implementation TweetieAppDelegate(TweetieHack)
+- (void)notifyGrowlWithStatuses:(NSArray *)statuses title:(NSString *)title notificationName:(NSString *)notificationName {
+	// Disable default Growl notifications for Timeline and Mentions
+}
+
+- (void)swizzled_notifyOfNewTimelineStatuses:(NSNotification *)notification {
+	NSLog(@"timeline:%@", notification);
+	[TweetieHack growl:[notification object]
 	   messageSelector:@selector(text)
 		  userSelector:@selector(fromUser)
 			moreFormat:@"%d more tweets"
-	  notificationName:[[self className] isEqualToString:@"TwitterRepliesStream"] ? @"Replies" : @"Timeline"];
-
-	return [self swizzled_addStatuses:statuses];
+	  notificationName:@"Timeline"];
+	[self swizzled_notifyOfNewTimelineStatuses:notification];
 }
-@end
 
-@implementation TwitterDirectMessagesStream(TweetieHack)
-- (void)swizzled_addMessages:(NSArray *)messages {
-	[TweetieHack growl:messages
+- (void)swizzled_notifyOfNewMentionStatuses:(NSNotification *)notification {
+	NSLog(@"mention:%@", notification);
+	[TweetieHack growl:[notification object]
+	   messageSelector:@selector(text)
+		  userSelector:@selector(fromUser)
+			moreFormat:@"%d more mentions"
+	  notificationName:@"Mentions"];
+	[self swizzled_notifyOfNewMentionStatuses:notification];
+}
+
+- (void)swizzled_notifyOfNewMessages:(NSNotification *)notification {
+	NSLog(@"message:%@", notification);
+	[TweetieHack growl:[notification object]
 	   messageSelector:@selector(text)
 		  userSelector:@selector(sender)
 			moreFormat:@"%d more direct messages"
 	  notificationName:@"Direct Message"];
-
-	return [self swizzled_addMessages:messages];
+	// Disable default Growl notification for direct messages
+	//[self swizzled_notifyOfNewMessages:notification];
 }
 @end
 
-@implementation NSApplication(TweetieHack)
-- (NSDictionary *)registrationDictionaryForGrowl {
-	return [NSDictionary dictionaryWithObjectsAndKeys:
-		[NSArray arrayWithObjects:@"Timeline", @"Replies", @"Direct Message", nil], GROWL_NOTIFICATIONS_ALL,
-		[NSArray arrayWithObjects:@"Timeline", @"Replies", @"Direct Message", nil], GROWL_NOTIFICATIONS_DEFAULT, nil];
-}
-@end
+#pragma mark -
 
 @implementation TweetieHack
 + (void)growl:(NSString *)message From:(TwitterUser *)user notificationName:(NSString *)notificationName {
@@ -88,19 +97,9 @@
 }
 
 + (void)load {
-	NSApplication *app = [NSApplication sharedApplication];
-	NSBundle *appBundle = [NSBundle bundleForClass:[app class]];
-	NSString *growlPath = [[appBundle privateFrameworksPath] stringByAppendingPathComponent:@"Growl.framework"];
-	NSBundle *growlBundle = [NSBundle bundleWithPath:growlPath];
-	if (growlBundle && [growlBundle load]) {
-		objc_msgSend([GrowlApplicationBridge class], @selector(setGrowlDelegate:), app);
-	} else {
-		NSLog(@"Could not load Growl.framework");
-	}
-
-	if(MethodSwizzle(NSClassFromString(@"TwitterTimelineStream"), @selector(addStatuses:), @selector(swizzled_addStatuses:)) &&
-	   MethodSwizzle(NSClassFromString(@"TwitterRepliesStream"), @selector(addStatuses:), @selector(swizzled_addStatuses:)) &&
-	   MethodSwizzle(NSClassFromString(@"TwitterReceivedDirectMessagesStream"), @selector(addMessages:), @selector(swizzled_addMessages:))) {
+	if(MethodSwizzle(NSClassFromString(@"TweetieAppDelegate"), @selector(notifyOfNewTimelineStatuses:), @selector(swizzled_notifyOfNewTimelineStatuses:))
+	   && MethodSwizzle(NSClassFromString(@"TweetieAppDelegate"), @selector(notifyOfNewMentionStatuses:), @selector(swizzled_notifyOfNewMentionStatuses:))
+	   && MethodSwizzle(NSClassFromString(@"TweetieAppDelegate"), @selector(notifyOfNewMessages:), @selector(swizzled_notifyOfNewMessages:))) {
 		NSLog(@"TweetieHack installed");
 	}
 }

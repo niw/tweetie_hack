@@ -19,7 +19,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>0.1.2</string>
+	<string>0.2.0</string>
 	<key>NSPrincipalClass</key>
 	<string>TweetieHack</string>
 	<key>SIMBLTargetApplications</key>
@@ -28,9 +28,9 @@
 			<key>BundleIdentifier</key>
 			<string>com.atebits.tweetie-mac</string>
 			<key>MaxBundleVersion</key>
-			<string>1.0.2</string>
+			<string>1.1</string>
 			<key>MinBundleVersion</key>
-			<string>*</string>
+			<string>1.1</string>
 		</dict>
 	</array>
 </dict>
