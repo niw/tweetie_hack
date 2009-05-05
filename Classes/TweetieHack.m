@@ -1,5 +1,4 @@
 #import "TweetieHack.h"
-#import "MethodSwizzle.h"
 
 #define MAX_NO_OF_NOTIFIED_STATUS 5
 #define MAX_NO_OF_UNNOTIFIED_NAMES 10
@@ -7,39 +6,28 @@
 #pragma mark -
 
 @implementation TweetieAppDelegate(TweetieHack)
-- (void)notifyGrowlWithStatuses:(NSArray *)statuses title:(NSString *)title notificationName:(NSString *)notificationName {
-	// Disable default Growl notifications for Timeline and Mentions
-}
-
-- (void)swizzled_notifyOfNewTimelineStatuses:(NSNotification *)notification {
-	NSLog(@"timeline:%@", notification);
+- (void)notifyOfNewTimelineStatuses:(NSNotification *)notification {
 	[TweetieHack growl:[notification object]
 	   messageSelector:@selector(text)
 		  userSelector:@selector(fromUser)
 			moreFormat:@"%d more tweets"
 	  notificationName:@"Timeline"];
-	[self swizzled_notifyOfNewTimelineStatuses:notification];
 }
 
-- (void)swizzled_notifyOfNewMentionStatuses:(NSNotification *)notification {
-	NSLog(@"mention:%@", notification);
+- (void)notifyOfNewMentionStatuses:(NSNotification *)notification {
 	[TweetieHack growl:[notification object]
 	   messageSelector:@selector(text)
 		  userSelector:@selector(fromUser)
 			moreFormat:@"%d more mentions"
 	  notificationName:@"Mentions"];
-	[self swizzled_notifyOfNewMentionStatuses:notification];
 }
 
-- (void)swizzled_notifyOfNewMessages:(NSNotification *)notification {
-	NSLog(@"message:%@", notification);
+- (void)notifyOfNewMessages:(NSNotification *)notification {
 	[TweetieHack growl:[notification object]
 	   messageSelector:@selector(text)
 		  userSelector:@selector(sender)
 			moreFormat:@"%d more direct messages"
 	  notificationName:@"Direct Message"];
-	// Disable default Growl notification for direct messages
-	//[self swizzled_notifyOfNewMessages:notification];
 }
 @end
 
@@ -97,10 +85,6 @@
 }
 
 + (void)load {
-	if(MethodSwizzle(NSClassFromString(@"TweetieAppDelegate"), @selector(notifyOfNewTimelineStatuses:), @selector(swizzled_notifyOfNewTimelineStatuses:))
-	   && MethodSwizzle(NSClassFromString(@"TweetieAppDelegate"), @selector(notifyOfNewMentionStatuses:), @selector(swizzled_notifyOfNewMentionStatuses:))
-	   && MethodSwizzle(NSClassFromString(@"TweetieAppDelegate"), @selector(notifyOfNewMessages:), @selector(swizzled_notifyOfNewMessages:))) {
-		NSLog(@"TweetieHack installed");
-	}
+	NSLog(@"TweetieHack installed");
 }
 @end

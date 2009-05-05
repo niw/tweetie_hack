@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		547E383C0FA2C46200FF1350 /* MethodSwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = 547E383B0FA2C46200FF1350 /* MethodSwizzle.m */; };
 		54B8E4300FA3A28100ABDF96 /* Growl.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 54B8E42F0FA3A28100ABDF96 /* Growl.framework */; };
 		54E9FB220FA23B4E00DB93BC /* TweetieHack.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E9FB210FA23B4E00DB93BC /* TweetieHack.m */; };
 		8D5B49B0048680CD000E48DA /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C167DFE841241C02AAC07 /* InfoPlist.strings */; };
@@ -20,8 +19,6 @@
 		089C167FFE841241C02AAC07 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		32DBCF630370AF2F00C91783 /* TweetieHack_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TweetieHack_Prefix.pch; sourceTree = "<group>"; };
-		547E383A0FA2C46200FF1350 /* MethodSwizzle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MethodSwizzle.h; sourceTree = "<group>"; };
-		547E383B0FA2C46200FF1350 /* MethodSwizzle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MethodSwizzle.m; sourceTree = "<group>"; };
 		54B8E42F0FA3A28100ABDF96 /* Growl.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Growl.framework; path = /Applications/Tweetie.app/Contents/Frameworks/Growl.framework; sourceTree = "<absolute>"; };
 		54E9FB200FA23B4E00DB93BC /* TweetieHack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TweetieHack.h; sourceTree = "<group>"; };
 		54E9FB210FA23B4E00DB93BC /* TweetieHack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TweetieHack.m; sourceTree = "<group>"; };
@@ -76,8 +73,6 @@
 		08FB77AFFE84173DC02AAC07 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				547E383A0FA2C46200FF1350 /* MethodSwizzle.h */,
-				547E383B0FA2C46200FF1350 /* MethodSwizzle.m */,
 				54E9FB200FA23B4E00DB93BC /* TweetieHack.h */,
 				54E9FB210FA23B4E00DB93BC /* TweetieHack.m */,
 			);
@@ -174,7 +169,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				54E9FB220FA23B4E00DB93BC /* TweetieHack.m in Sources */,
-				547E383C0FA2C46200FF1350 /* MethodSwizzle.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
