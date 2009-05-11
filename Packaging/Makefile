@@ -26,5 +26,4 @@ release: openUp
 	find $(OUTPUT_DIR) \( -name "*~" -or -name .DS_Store -or -name classes.nib -or -name info.nib \) -type f -delete
 	mkdir $(DISK_IMG_DIR)/.background
 	cp background.png $(DISK_IMG_DIR)/.background
-#	cp dmg.icns $(DISK_IMG_DIR)/.VolumeIcon.icns
 	./make-diskimage.sh $(OUTPUT_DIR)/$(RELEASE_NAME).dmg $(DISK_IMG_DIR) $(RELEASE_NAME) alignment.scpt
